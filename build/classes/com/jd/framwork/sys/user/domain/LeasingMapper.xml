@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jd.framwork.sys.user.domain.Leasing">
+	<!-- 公共的字段 -->
+	<sql id="sys_leasing_columns">
+	id,
+    number,  
+    rentername,
+    price,
+    usetime,
+    pledge,
+    starttime,
+    transactor,
+    renewal,
+    rtime,
+    rtransactor,
+    backtime,
+    total,
+    note,
+    obligate
+	</sql>
+   
+	<!-- 添加租赁合同 -->
+	<insert id="addLeasingA" parameterType="com.jd.framwork.sys.user.domain.Leasing">
+		INSERT INTO
+		   leasing
+		(number,rentername,price,usetime,pledge,starttime,transactor,renewal,rtime,backtime,total,obligate)
+		VALUES	
+			(#{number},#{rentername},#{price},#{usetime},#{pledge},#{starttime},#{transactor},"否",#{rtime},#{backtime},#{total},#{obligate})
+	</insert>
+	<!-- 添加合同的同时修改车辆的状态为obligation 为出行-->
+	<update id="addLeasingB" parameterType="com.jd.framwork.sys.user.utils.AddLeasingTool">
+        update car
+        <set>
+            <if test="obligateCar != null and obligateCar != ''">
+                obligate=#{obligateCar},
+            </if>
+        </set>
+        where
+          number=#{leasing.number}
+   </update>
+	<!-- 根据用户id更新汽车的信息 -->
+	<update id="updateLeasing" parameterType="com.jd.framwork.sys.user.domain.Leasing">
+		update leasing
+		<set>
+			<if test="rentername != null">
+				rentername=#{rentername},
+			</if>
+			<if test="price != null">
+				price=#{price},
+			</if>
+			<if test="renewal != null">
+                renewal=#{renewal},
+            </if>
+            <if test="total != null">
+                total=#{total},
+            </if>
+             <if test="transactor != null">
+                transactor=#{transactor},
+            </if>         
+		</set>
+		where
+		  id=#{id}
+	</update>
+	<!-- 查询车辆信息 -->
+	<select id="queryLeasing" resultType="map">
+		SELECT
+		<include refid="sys_leasing_columns" />
+		FROM
+		  leasing
+	</select>
+	<!-- 根据id查询车辆信息 -->
+    <select id="queryLeasingById" parameterType="int"  resultType="com.jd.framwork.sys.user.domain.Leasing">
+    SELECT
+    <include refid="sys_leasing_columns" />
+    FROM
+       leasing
+    where
+       id = #{id}
+    </select>
+	<!-- 根据id删除车辆信息 -->
+	<delete id="deleteLeasing" parameterType="int">
+		delete from leasing
+		where
+		id = #{id}
+	</delete>
+	
+	<select id="queryLeasingByPage" resultType="map"
+	parameterType="com.jd.framwork.sys.user.utils.Page">
+	<!-- order by id asc是指对查询后的结果进行升序排序 -->
+	SELECT
+	<include refid="sys_leasing_columns" />
+	FROM
+	 leasing
+	LIMIT
+	   #{start},#{end}
+    </select> 
+    <!-- 续约合同信息 -->
+    <update id="updatesLeasing" parameterType="com.jd.framwork.sys.user.domain.Leasing">
+        update leasing
+        <set>        
+                renewal="是",
+            <if test="rtime != null">
+                rtime=#{rtime},
+            </if>
+            <if test="rtransactor != null">
+                rtransactor=#{rtransactor},
+            </if>
+            <if test="total != null">
+                total=#{total},
+            </if>    
+        </set>
+        where
+          id=#{id}
+    </update>
+    <!-- 修改续约合同信息 -->
+    <update id="updatefLeasing" parameterType="com.jd.framwork.sys.user.domain.Leasing">
+        update leasing
+        <set>
+            <if test="rtime != null">
+                rtime=#{rtime},
+            </if>
+            <if test="rtransactor != null">
+                rtransactor=#{rtransactor},
+            </if>
+            <if test="total != null">
+                total=#{total},
+            </if>    
+        </set>
+        where
+          id=#{id}
+    </update>
+    <!-- 完成合同 ，修改leasing的obligate状态-->
+    <update id="updateLeasingComA" parameterType="com.jd.framwork.sys.user.domain.Leasing">
+	update leasing
+	<set>
+		<if test="obligate != null and obligate !=''">
+			obligate=#{obligate},
+		</if>
+	</set>
+	where
+	    id=#{id}
+   </update>
+   <!-- 完成合同 ，修改car的obligate状态-->
+   <update id="updateLeasingComB" parameterType="com.jd.framwork.sys.user.utils.LeasTool">
+        update car
+        <set>
+            <if test="obligateCar != null and obligateCar != ''">
+                obligate=#{obligateCar},
+            </if>
+        </set>
+        where
+          number=#{number}
+   </update>
+   
+   <!-- 根据用户姓名查询订单信息 -->
+    <select id="queryLeasingByUserId" parameterType="com.jd.framwork.sys.user.domain.User"  resultType="com.jd.framwork.sys.user.domain.Leasing">
+    SELECT
+    <include refid="sys_leasing_columns" />
+    FROM
+       leasing
+    where
+       rentername = #{username}
+    </select>
+    <!-- 根据id取消订单,删除表leasing中信息 -->
+    <delete id="cancelOrder" parameterType="int">
+         delete from leasing
+        where
+          id = #{id}
+    </delete>
+     <!-- 取消订单后 ，修改car的obligate状态-->
+   <update id="cancelOrderCar" parameterType="com.jd.framwork.sys.user.utils.LeasTool">
+        update car
+        <set>
+            <if test="obligateCar != null and obligateCar != ''">
+                obligate=#{obligateCar},
+            </if>
+        </set>
+        where
+          number=#{number}
+   </update>
+</mapper>

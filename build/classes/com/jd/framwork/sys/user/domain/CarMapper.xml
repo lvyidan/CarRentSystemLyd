@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jd.framwork.sys.user.domain.Car">
+	<!-- 公共的字段 -->
+	<sql id="sys_car_columns">
+	id,
+	name,
+	type,
+	number,
+	price,
+	safetype,
+	obligate  
+	</sql>
+   
+	<!-- 添加车辆 -->
+	<insert id="addCar" parameterType="com.jd.framwork.sys.user.utils.AddCarTool">
+		INSERT INTO
+		   car
+		(name,type,number,price,safetype,obligate)
+		VALUES	
+			(#{car.name},#{car.type},#{car.number},#{car.price},#{car.safetype},#{obligate})
+	</insert>
+	<!-- 根据用户id更新汽车的信息 -->
+	<update id="updateCar" parameterType="com.jd.framwork.sys.user.domain.Car">
+		update car
+		<set>
+			<if test="name != null">
+				name=#{name},
+			</if>
+			<if test="number != null">
+				number=#{number},
+			</if>
+			<if test="type != null">
+                type=#{type},
+            </if>
+            <if test="price != null">
+                price=#{price},
+            </if>
+            <if test="safetype != null">
+                safetype=#{safetype},
+            </if>
+            
+            <if test="obligate != null">
+                obligate=#{obligate},
+            </if>
+		</set>
+		where
+		  id=#{id}
+	</update>
+	<!-- 查询车辆信息 -->
+	<select id="queryCar" resultType="map">
+		SELECT
+		<include refid="sys_car_columns" />
+		FROM
+		  car
+	</select>
+	<!-- 根据id查询车辆信息 -->
+    <select id="queryCarById" parameterType="int"  resultType="com.jd.framwork.sys.user.domain.Car">
+    SELECT
+    <include refid="sys_car_columns" />
+    FROM
+       car
+    where
+       id = #{id}
+    </select>
+	<!-- 根据id删除车辆信息 -->
+	<delete id="deleteCar" parameterType="int">
+		delete from car
+		where
+		id = #{id}
+	</delete>
+	
+	<select id="queryCarByPage" resultType="map"
+	parameterType="com.jd.framwork.sys.user.utils.Page">
+	<!-- order by id asc是指对查询后的结果进行升序排序 -->
+	SELECT
+	<include refid="sys_car_columns" />
+	FROM
+	 car
+	LIMIT
+	   #{start},#{end}
+    </select> 
+    
+</mapper>

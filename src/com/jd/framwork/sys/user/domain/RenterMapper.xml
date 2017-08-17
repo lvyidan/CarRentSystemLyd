@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jd.framwork.sys.user.domain.Renter">
+	<!-- 公共的字段 -->
+	<sql id="sys_renter_columns">
+	 id,
+     rentername,  
+     idnum,  
+     phone,  
+     drivenum,  
+     address,  
+     workunit,  
+     note,  
+     obligate
+	</sql>
+   
+	<!-- 添加租赁人-->
+	<insert id="addRenter" parameterType="com.jd.framwork.sys.user.domain.Renter">
+		INSERT INTO
+		   Renter
+		(rentername,idnum,phone,drivenum,address)
+		VALUES	
+			(#{rentername},#{idnum},#{phone},#{drivenum},#{address})
+	</insert>
+	<!-- 根据用户id更新租赁人的信息 -->
+	<update id="updateRenter" parameterType="com.jd.framwork.sys.user.domain.Renter">
+		update renter
+		<set>
+			<if test="rentername != null">
+				rentername=#{rentername},
+			</if>
+			<if test="idnum != null">
+				idnum=#{idnum},
+			</if>
+			<if test="drivenum != null">
+                drivenum=#{drivenum},
+            </if>
+            <if test="address != null">
+                address=#{address},
+            </if>
+            <if test="workunit != null">
+                workunit=#{workunit},
+            </if>
+		</set>
+		where
+		  id=#{id}
+	</update>
+	<!-- 查询租赁人信息 -->
+	<select id="queryRenter" resultType="map">
+		SELECT
+		<include refid="sys_renter_columns" />
+		FROM
+		  renter
+	</select>
+	<!-- 根据id查询车辆信息 -->
+    <select id="queryRenterById" parameterType="int"  resultType="com.jd.framwork.sys.user.domain.Renter">
+    SELECT
+    <include refid="sys_renter_columns" />
+    FROM
+       renter
+    where
+       id = #{id}
+    </select>
+	<!-- 根据id删除租赁人信息 -->
+	<delete id="deleteRenter" parameterType="int">
+		delete from renter
+		where
+		id = #{id}
+	</delete>
+	
+	<select id="queryRenterByPage" resultType="map"
+	parameterType="com.jd.framwork.sys.user.utils.Page">
+	<!-- order by id asc是指对查询后的结果进行升序排序 -->
+	SELECT
+	<include refid="sys_renter_columns" />
+	FROM
+	 renter
+	LIMIT
+	   #{start},#{end}
+    </select> 
+    
+</mapper>
